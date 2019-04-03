@@ -77,7 +77,7 @@ def launch_player(player_type, index, options):
 
     # Build keepaway_player command, and fork it off.
     # TODO Always assume keepaway_player is here?
-    command = [relative('./player/keepaway_player')] + player_options
+    command = [relative('./build/keepaway_player')] + player_options
     #print command
     #print " ".join(command)
     popen = Popen(command)
@@ -90,7 +90,7 @@ def launch_monitor(options):
     monitor_options = [('server-port', options.port)]
     monitor_options = [
         '--%s=%s' % option for option in monitor_options]
-    command = [relative('../rcssmonitor_qt4/src/rcssmonitor')] + monitor_options
+    command = [relative('../rcssmonitor/build/rcssmonitor')] + monitor_options
     # print command
     # print " ".join(command)
     Popen(command)
@@ -187,7 +187,7 @@ def launch_server(options):
 
     # Build rcssserver command, and fork it off.
     # TODO Locate rcssserver executable reliably.
-    command = [relative('../rcssserver/src/rcssserver')] + server_options
+    command = [relative('../rcssserver/build/rcssserver')] + server_options
     print command
     # print " ".join(command)
     popen = Popen(command)
