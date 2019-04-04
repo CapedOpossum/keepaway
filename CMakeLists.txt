@@ -50,3 +50,17 @@ target_link_libraries(
         Threads::Threads
         "dl"
 )
+
+# ==============================================================================
+# Keepaway Histogram Generation Build Plan
+# ==============================================================================
+add_executable(hist
+    "tools/hist.cc"
+)
+
+# ==============================================================================
+# Sliding Window Calculation Build Plan
+# ==============================================================================
+add_executable(winsum
+    "tools/winsum.cc"
+)
