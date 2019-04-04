@@ -8,6 +8,7 @@
 #include <sstream>
 #include "LinearSarsaAgent.h"
 #include "LoggerDraw.h"
+#include "Logger.h"
 
 // If all is well, there should be no mention of anything keepaway- or soccer-
 // related in this file. 
@@ -54,6 +55,7 @@ long* loadColTabHeader(collision_table* colTab, double* weights) {
 }
 
 extern LoggerDraw LogDraw;
+extern Logger Log;
 
 LinearSarsaAgent::LinearSarsaAgent( int numFeatures, int numActions, bool bLearn,
                                     double widths[],
@@ -62,6 +64,7 @@ LinearSarsaAgent::LinearSarsaAgent( int numFeatures, int numActions, bool bLearn
 {
   bLearning = bLearn;
 
+  Log.log(1, "LinearSarsaAgent starting and %slearning.", (bLearning ? "":"not "));
   for ( int i = 0; i < getNumFeatures(); i++ ) {
     tileWidths[ i ] = widths[ i ];
   }
@@ -192,10 +195,18 @@ void LinearSarsaAgent::endEpisode( double reward )
   if (hiveMind) loadColTabHeader(colTab, weights);
   if ( bLearning && lastAction != -1 ) { /* otherwise we never ran on this episode */
     char buffer[128];
+    timespec currentTime;
+
+    memset(buffer, 0x00, sizeof(buffer));
+    memset(&currentTime, 0x00, sizeof(currentTime));
+
+    clock_gettime(CLOCK_REALTIME, &currentTime);
+
     sprintf( buffer, "reward: %.2f", reward ); 
     LogDraw.logText( "reward", VecPosition( 25, 30 ),
                      buffer,
                      1, COLOR_NAVY );
+    Log.log(1, "tv_sec=%d, tv_nsec=%d, epoch=%d, reward=%.02f", currentTime.tv_sec, currentTime.tv_nsec, epochNum, reward);
 
     /* finishing up the last episode */
     /* assuming gamma = 1  -- if not,error*/

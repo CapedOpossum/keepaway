@@ -52,12 +52,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
 #include <stdio.h>    // needed for vsprintf
 #include <string>     // needed for string
+#include <sstream>
 #ifdef Solaris
 #include <varargs.h> // needed for va_list and va_start under Solaris
 #else
 #include <stdarg.h>
 #endif
 #include <pthread.h>
+
+using std::stringstream;
 
 Logger Log;          /*!<Logger instantation that can be used by all classes */
 
@@ -90,11 +93,11 @@ Logger::Logger( ostream& o, int iMin, int iMax )
    \return bool indicating whether the message was logged or not. */
 bool Logger::log( int iLevel, string str)
 {
-  if( isInLogLevel( iLevel ) )
-  {
-    *m_os << m_strHeader << str;
-    return true;
-  }
+  // if( isInLogLevel( iLevel ) )
+  // {
+  //   *m_os << m_strHeader << str;
+  //   return true;
+  // }
 
   return false;
 }
@@ -109,7 +112,7 @@ bool Logger::log( int iLevel, string str)
    \param str character string with (possible) format specifiers
    \param ... variables that define the values of the specifiers.
    \return bool indicating whether the message was logged or not. */
-bool Logger::log( int iLevel, char *str, ... )
+bool Logger::log( int iLevel, const char *str, ... )
 {
   if( isInLogLevel( iLevel ) )
   {
@@ -120,10 +123,12 @@ bool Logger::log( int iLevel, char *str, ... )
 #else
     va_start( ap, str );
 #endif
+    memset(m_buf, 0x00, MAX_LOG_LINE);
     if( vsnprintf( m_buf, MAX_LOG_LINE-1, str, ap ) == -1 )
       cerr << "Logger::log, buffer is too small!\n" ;
     va_end(ap);
     *m_os << m_strHeader << m_buf << "\n";
+    m_os->flush();
     return true;
   }
 
@@ -141,7 +146,7 @@ bool Logger::log( int iLevel, char *str, ... )
    \param str character string with (possible) format specifiers
    \param ... variables that define the values of the specifiers.
    \return bool indicating whether the message was logged or not. */
-bool Logger::logWithTime( int iLevel, char *str, ... )
+bool Logger::logWithTime( int iLevel, const char *str, ... )
 {
   if( isInLogLevel( iLevel ) )
   {
@@ -156,11 +161,9 @@ bool Logger::logWithTime( int iLevel, char *str, ... )
       cerr << "Logger::log, buffer is too small!" << "\n";
     va_end(ap);
 
-    string s = m_strHeader;
-    s.append( m_buf );
-    s.copy( m_buf, string::npos );
-    m_buf[s.length()] = '\0';
-    m_timing.printTimeDiffWithText( *m_os, m_buf );
+    stringstream combinedMsg;
+    combinedMsg << m_strHeader << m_buf;
+    m_timing.printTimeDiffWithText( *m_os, combinedMsg.str().c_str() );
 
     return true;
   }
@@ -181,28 +184,28 @@ bool Logger::logWithTime( int iLevel, char *str, ... )
  \return bool indicating whether the message was logged or not. */
 bool Logger::logFromSignal( int iLevel, char   *str, ...        )
 {
-  char buf[MAX_LOG_LINE];
-  if( isInLogLevel( iLevel ) )
-  {
-    va_list ap;
-#ifdef Solaris
-    va_start( ap );
-#else
-    va_start( ap, str );
-#endif
-    if( vsnprintf( buf, MAX_LOG_LINE-1, str, ap ) == -1 )
-      cerr << "Logger::log, buffer is too small!" << "\n";
-    va_end(ap);
+//   char buf[MAX_LOG_LINE];
+//   if( isInLogLevel( iLevel ) )
+//   {
+//     va_list ap;
+// #ifdef Solaris
+//     va_start( ap );
+// #else
+//     va_start( ap, str );
+// #endif
+//     if( vsnprintf( buf, MAX_LOG_LINE-1, str, ap ) == -1 )
+//       cerr << "Logger::log, buffer is too small!" << "\n";
+//     va_end(ap);
 
-    char str[16];
-    sprintf( str, "%2.2f: ", m_timing.getElapsedTime()*1000 );
-    m_strSignal.append( str );
-    m_strSignal.append( m_strHeader );
-    m_strSignal.append( buf );
-    m_strSignal.append(  "\n\0" );
+//     char str[16];
+//     sprintf( str, "%2.2f: ", m_timing.getElapsedTime()*1000 );
+//     m_strSignal.append( str );
+//     m_strSignal.append( m_strHeader );
+//     m_strSignal.append( buf );
+//     m_strSignal.append(  "\n\0" );
 
-    return true;
-  }
+//     return true;
+//   }
 
   return false;
 
@@ -370,10 +373,11 @@ double Timing::getTimeDifference( struct timeval tv1, struct timeval tv2 )
     \param os output stream to which output should be written.
     \param str that should be printed
     \param iFactor with which the elapsed time is multiplied (default 1000) */
-void Timing::printTimeDiffWithText( ostream &os, char *str, int iFactor )
+void Timing::printTimeDiffWithText( ostream &os, const char *str, int iFactor )
 {
   // set the with to 6 and fill remaining places with '0'.
   os <<setw(6)<< setfill('0')<< getElapsedTime()*iFactor << ":" << str << "\n";
+  os.flush();
 }
 
 /*! This method returns the time (in seconds) since the last time the timer

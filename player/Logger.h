@@ -92,7 +92,7 @@ public:
                                        struct   timeval t2                   );
 #endif
   void          printTimeDiffWithText( ostream& os,
-                                       char     *str,
+                                       const char *str,
                                        int      iFactor = 1000               );
   double        getElapsedTime       ( int      iFactor = 1                  );
   void          restartTime          (                                       );
@@ -132,8 +132,8 @@ public:
 
   // different methods associated with logging messages
   bool     log              ( int         iLevel, string str              );
-  bool     log              ( int         i,      char   *str, ...        );
-  bool     logWithTime      ( int         iLevel, char   *str, ...        );
+  bool     log              ( int         i,      const char *str, ...    );
+  bool     logWithTime      ( int         iLevel, const char *str, ...    );
   bool     logFromSignal    ( int         iLevel, char   *str, ...        );
   bool     logSignal        (                                             );
   

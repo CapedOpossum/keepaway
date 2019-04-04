@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import os
+from datetime import datetime
+
 
 class Any:
     """
@@ -68,6 +71,17 @@ def launch_player(player_type, index, options):
         # Hive mind!
         player_options.update(hive = 1)
 
+    if getattr(options, 'log_player_levels', None):
+        log_timestamp = datetime.now().isoformat(sep='_')
+        player_log_file = '{:s}_{:s}_{:d}_log.txt'.format(
+            log_timestamp,
+            player_type,
+            index
+        )
+        player_log_file = os.path.join(options.log_dir, player_log_file)
+        player_options['o'] = player_log_file
+        player_options['l'] = options.log_player_levels
+
     # Change the dict to a sorted list of args.
     player_options = player_options.items()
     player_options.sort()
@@ -79,7 +93,7 @@ def launch_player(player_type, index, options):
     # TODO Always assume keepaway_player is here?
     command = [relative('./build/keepaway_player')] + player_options
     #print command
-    #print " ".join(command)
+    print " ".join(command)
     popen = Popen(command)
     return popen.pid
 
@@ -273,6 +287,10 @@ def parse_options(args = None, **defaults):
     parser.add_option(
         '--log-text', action = 'store_true', default = False,
         help = "Save rcl (message/command) log file.")
+    parser.add_option(
+        '--log-player-levels',
+        help = "Set player plain logging levels (either comma-separated or x-y range)"
+    )
     parser.add_option(
         '--monitor', action = 'store_true', default = False,
         help = "Launch the monitor to watch the play.")

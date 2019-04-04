@@ -207,7 +207,7 @@ void SenseHandler::setTimeSignal( )
     \return bool indicating whether the message was parsed or not */
 bool SenseHandler::analyzeMessage( char *strMsg )
 {
-  Log.log( 1, strMsg );
+  // Log.log( 1, strMsg );
   bool bReturn = false;
   
   synchronize(); //*met 8/16/05
