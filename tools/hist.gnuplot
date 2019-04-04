@@ -14,7 +14,7 @@ set output "./hist.eps"
 set title ""
 
 # Appearance
-#set data style steps
+set style data steps
 #set nokey
 set border 3
 set xtics nomirror
