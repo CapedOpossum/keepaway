@@ -1,3 +1,4 @@
+**/.DS_Store
 *.o
 *.pyc
 /logs/
@@ -8,3 +9,4 @@
 /tools/kwyzipper
 /tools/winsum
 build/
+**/*.eps
